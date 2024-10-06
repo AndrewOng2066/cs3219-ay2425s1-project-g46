@@ -42,7 +42,7 @@ function Login() {
 			password: password
 		}
 
-		axios.post(`http://localhost:5000/user/login`, reqBody).then((response) => {
+		axios.post(`http://localhost:5001/user/login`, reqBody).then((response) => {
 			// store token, email and username into session storage upon successful login
 			const token = response.data.token;
 			const email = response.data.email;

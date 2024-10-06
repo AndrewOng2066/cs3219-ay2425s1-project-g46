@@ -1,5 +1,5 @@
 // Author(s): Andrew, Xinyi
-const db = require("../firebase");
+const db = require("../db/firebase");
 const userCollection = db.collection("users");
 
 // jsonwebtoken to generate session token for persistent login

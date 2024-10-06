@@ -1,5 +1,5 @@
 // Author(s): Calista, Xiu Jia, Xue Ling
-const db = require("../firebase");
+const db = require("../db/firebase");
 const questionCollection = db.collection("questions");
 
 /**

@@ -36,7 +36,7 @@ function Signup() {
       validationErrors.email === "" &&
       validationErrors.password === "" &&
       validationErrors.confirmPassword === "") {
-      axios.post("http://localhost:5000/user/signup", values)
+      axios.post("http://localhost:5001/user/signup", values)
         .then(res => {
           naviagte('/user/login');
           setValues({
