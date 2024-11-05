@@ -43,4 +43,19 @@
     bottom: 10px;
     right: 15px;
   }
+
+  .historyCard button {
+    border: none;
+    background: #2d2d2d;
+    color: white;
+    padding: 12px 24px;
+    margin: 8px;
+    font-size: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
   
+  .historyCard .feedbackButton {
+    display: flex;
+    justify-content: flex-end;
+  }

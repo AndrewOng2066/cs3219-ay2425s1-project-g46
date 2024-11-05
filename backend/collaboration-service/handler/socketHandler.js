@@ -62,7 +62,8 @@ const handleSocketIO = (io) => {
             user1: user1,
             user2: user2,
           },
-          roomId: id
+          roomId: id,
+          reviewGiven: false
         };
 
         try {

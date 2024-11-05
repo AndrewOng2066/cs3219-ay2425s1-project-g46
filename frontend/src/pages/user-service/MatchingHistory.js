@@ -42,12 +42,7 @@ export default function MatchingHistory() {
             Object.entries(historyData).map(([key, historyData]) => (
               <HistoryCard
                 key={key} 
-                otherUserEmail={historyData.otherUserEmail}
-                title={historyData.title}
-                category={historyData.category}
-                complexity={historyData.complexity}
-                description={historyData.description}
-                timestamp={historyData.timestamp}
+                historyData={historyData}
               />
             ))
           ) : (

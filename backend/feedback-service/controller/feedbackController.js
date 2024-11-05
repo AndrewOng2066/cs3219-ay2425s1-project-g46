@@ -40,6 +40,7 @@ const addReview = async (req, res) => {
   }
 }
 
+
 const getReview = async(req, res) => {
   const userEmail = req.params.email;
   console.log("Feteching user review based on the email: ", userEmail)

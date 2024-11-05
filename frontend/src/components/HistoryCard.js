@@ -1,8 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import "./styles/HistoryCard.css";
 
-export const HistoryCard = (props) => {
- 
+export const HistoryCard = ({historyData}) => {
+  const navigate = useNavigate();
   
   const formatDate = (timestamp) => {
     const date = new Date(Date.parse(timestamp)); // Parse without timezone conversion
@@ -15,18 +16,30 @@ export const HistoryCard = (props) => {
   
     return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
-  
-  
 
-  console.log(props);
+  const passingData = () => {
+    navigate('/feedback/userfeedback', {
+      state: {
+        otherUserEmail: historyData.otherUserEmail, // Pass email
+        roomId: historyData.roomId, // Pass roomId
+      },
+    });
+  };
+  
 
   return (
     <div className='historyCard'>
-      <p><strong>With : </strong> {props.otherUserEmail}</p>
-      <p><strong>Title: </strong> {props.title}</p>
-      <p><strong>Category, Difficulty: </strong>{props.category}, {props.complexity}</p>
-      <p><strong>Question: </strong> {props.description}</p>
-      <p className='fromText'> {formatDate(props.timestamp)}</p>
+      <p><strong>With : </strong> {historyData.otherUserEmail}</p>
+      <p><strong>Title: </strong> {historyData.title}</p>
+      <p><strong>Category, Difficulty: </strong>{historyData.category}, {historyData.complexity}</p>
+      <p><strong>Question: </strong> {historyData.description}</p>
+      <p className='fromText'> {formatDate(historyData.timestamp)}</p>
+
+      {historyData.reviewGiven ? 
+        null 
+        : 
+        <button className="review-button" onClick={passingData} >Give Review</button>
+      }
     </div>
   );
 };

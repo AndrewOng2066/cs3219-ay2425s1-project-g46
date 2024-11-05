@@ -1,14 +1,18 @@
 // Author(s): Andrew
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {useLocation } from "react-router-dom";
 import axios from "axios";
 import "./styles/UserFeedback.css";
 import NavBar from "../../components/NavBar";
 import RatingReview from "../../components/RatingReview";
 
 function Signup() {
+
+  const location = useLocation();
+  const { otherUserEmail, roomId } = location.state || {};
+
   const [values, setValues] = useState({
-    email: '',
+    email: otherUserEmail,
     rating: 0,
     comment: '',
   });
@@ -21,8 +25,6 @@ function Signup() {
     setValues(prev => ({ ...prev, [event.target.name]: event.target.value }));
 
   };
-
-  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -85,8 +87,8 @@ function Signup() {
             {errorMessage && <p className="errorLabel">{errorMessage}</p>}
             </div>
           <div className='formGroup'>
-            <label htmlFor='email' className='inputLabel'><strong>Email</strong></label>
-            <input type='email' placeholder='Email' name='email' value={values.email} onChange={handleInput} className='inputBox' />
+            <label htmlFor='email' className='inputLabel'><strong>Collaborator's Email</strong></label>
+            <input type='email' placeholder='Email' name='email' value={values.email} onChange={handleInput} className='inputBox' readOnly/>
             {errors.email && <span className='error-Label'> {errors.email}</span>}
           </div>
           
