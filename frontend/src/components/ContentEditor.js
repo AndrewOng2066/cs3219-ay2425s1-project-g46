@@ -31,6 +31,10 @@ const ContentEditor = ({ id }) => {
     };
   }, [id, content]);
 
+  collaborationSocket.on("sessionEnded", (socketId) => {
+    setContent("");
+  });
+
   const updateContent = (e) => {
     const content = e.target.value;
     setContent(content);

@@ -23,18 +23,21 @@ function FindingMatch() {
   // check for backtrack, navigate back to criteria selection if user confirms action,
   // otherwise stay on page
   window.onpopstate = (event) => {
-
-    event.preventDefault();
-    var confirmation = window.confirm("You are exiting the matching queue, continue?");
-    if (confirmation) {
-      matchingSocket.emit("cancel_matching", { topic, difficultyLevel, email, token, username, isAny: isAnyDifficulty });
-      // location.state = undefined;
-      location.state = "";
-      navigate("/matching/select");
-    } else {
-      event.stopImmediatePropagation();
-      event.preventDefault();
-    }
+    window.alert("Going back to criteria selection...");
+    matchingSocket.emit("cancel_matching", { topic, difficultyLevel, email, token, username, isAny: isAnyDifficulty });
+    navigate("/matching/select");
+    // try again later
+    // var confirmation = window.confirm("You are exiting the matching queue, continue?");
+    // if (confirmation) {
+    //   socket.emit("cancel_matching", { topic, difficultyLevel, email, token, username, isAny: isAnyDifficulty });
+    //   location.state = undefined;
+    //   navigate("/matching/select");
+    // } else {
+    //   event.stopImmediatePropagation();
+    //   event.preventDefault();
+    //   socket.emit("cancel_matching", { topic, difficultyLevel, email, token, username, isAny: isAnyDifficulty });
+    //   navigate("/matching/select");
+    // }
 
   }
 
