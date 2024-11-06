@@ -4,8 +4,8 @@ const {
   checkMatchingSameQueue,
   checkMatchingAnyQueue,
   removeUserFromQueue,
-  removeUserFromPriorityQueue
-} = require('../controller/queueController');
+  removeUserFromPriorityQueue,
+} = require("../controller/queueController");
 const { createMatch } = require("../controller/matchController");
 
 let socketMap = {};
@@ -23,20 +23,33 @@ const handleSocketIO = (io) => {
       socketMap[email] = socket.id;
 
       // Add user to RabbitMQ queue (assuming you have the logic for this)
-      await addUserToQueue(topic, difficultyLevel, email, token, username, isAny);
+      await addUserToQueue(
+        topic,
+        difficultyLevel,
+        email,
+        token,
+        username,
+        isAny
+      );
 
       // Check for a match
       if (!isAny) {
-        const userList = await checkMatchingSameQueue(topic, difficultyLevel, email, token, username, isAny);
+        const userList = await checkMatchingSameQueue(
+          topic,
+          difficultyLevel,
+          email,
+          token,
+          username,
+          isAny
+        );
 
         if (userList) {
           const [firstUser, secondUser] = userList;
 
-
-          
-
-
-          const { status, msg, error, matchData, id } = await createMatch(firstUser, secondUser);
+          const { status, msg, error, matchData, id } = await createMatch(
+            firstUser,
+            secondUser
+          );
 
           if (status == 200 && msg) {
             console.log(msg);
@@ -45,20 +58,35 @@ const handleSocketIO = (io) => {
           }
 
           // Notify both users about the match
-          io.to(socketMap[firstUser.email]).emit("match_found", { data: matchData, id });
-          io.to(socketMap[secondUser.email]).emit("match_found", { data: matchData, id });
-          console.log(`A match is found: --> User1: ${firstUser.email}  --> User2: ${secondUser.email}`);
+          io.to(socketMap[firstUser.email]).emit("match_found", {
+            data: matchData,
+            id,
+          });
+          io.to(socketMap[secondUser.email]).emit("match_found", {
+            data: matchData,
+            id,
+          });
+          console.log(
+            `A match is found: --> User1: ${firstUser.email}  --> User2: ${secondUser.email}`
+          );
         }
-
       } else {
-        const mixUserList = await checkMatchingAnyQueue(topic, difficultyLevel, email, token, username, isAny);
+        const mixUserList = await checkMatchingAnyQueue(
+          topic,
+          difficultyLevel,
+          email,
+          token,
+          username,
+          isAny
+        );
 
         if (mixUserList) {
           const [firstMixUser, secondMixUser] = mixUserList;
 
-          
-
-          const { status, msg, error, matchData, id } = await createMatch(firstMixUser, secondMixUser);
+          const { status, msg, error, matchData, id } = await createMatch(
+            firstMixUser,
+            secondMixUser
+          );
 
           if (status == 200 && msg) {
             console.log(msg);
@@ -67,11 +95,18 @@ const handleSocketIO = (io) => {
           }
 
           // Notify both users about the match
-          io.to(socketMap[firstMixUser.email]).emit("match_found", { data: matchData, id });
-          io.to(socketMap[secondMixUser.email]).emit("match_found", { data: matchData, id });
-          console.log(`A match is found: --> User1: ${firstMixUser.email}  --> User2: ${secondMixUser.email}`);
+          io.to(socketMap[firstMixUser.email]).emit("match_found", {
+            data: matchData,
+            id,
+          });
+          io.to(socketMap[secondMixUser.email]).emit("match_found", {
+            data: matchData,
+            id,
+          });
+          console.log(
+            `A match is found: --> User1: ${firstMixUser.email}  --> User2: ${secondMixUser.email}`
+          );
         }
-
       }
     });
 
@@ -84,10 +119,23 @@ const handleSocketIO = (io) => {
       socketMap[email] = socket.id;
 
       // Remove user from RabbitMQ queue (assuming you have the logic for this)
-      await removeUserFromQueue(topic, difficultyLevel, email, token, username, isAny);
-      await removeUserFromPriorityQueue(topic, difficultyLevel, email, token, username, isAny);
-
-    })
+      await removeUserFromQueue(
+        topic,
+        difficultyLevel,
+        email,
+        token,
+        username,
+        isAny
+      );
+      await removeUserFromPriorityQueue(
+        topic,
+        difficultyLevel,
+        email,
+        token,
+        username,
+        isAny
+      );
+    });
 
     // Handle disconnection
     socket.on("disconnect", () => {
