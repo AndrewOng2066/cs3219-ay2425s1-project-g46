@@ -82,6 +82,7 @@ services:
       - /app/node_modules # Anonymous Volume
     networks:
       - peerprep-network # Connects the feedback-service to the 'peerprep-network' network.
+      
 
 volumes:
   rabbitmq_data:
