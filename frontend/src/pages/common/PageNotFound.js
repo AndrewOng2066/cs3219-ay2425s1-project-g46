@@ -1,6 +1,6 @@
 // Author(s): Xiu Jia
 import { useNavigate } from "react-router-dom";
-import "./style/PageNotFound.css";
+import "./styles/PageNotFound.css";
 import NavBar from "../../components/NavBar";
 
 const PageNotFound = () => {

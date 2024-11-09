@@ -3,6 +3,7 @@ import axios from "axios";
 import "./styles/MatchingHistory.css";
 import NavBar from "../../components/NavBar";
 import { HistoryCard } from '../../components/HistoryCard';
+import { API_GATEWAY_URL_API } from "../../config/constant";
 import useSessionStorage from "../../hook/useSessionStorage";
 
 export default function MatchingHistory() {
@@ -15,7 +16,7 @@ export default function MatchingHistory() {
   useEffect(() => {
     const fetchHistoryData = async () => {
       try {
-        const response = await axios.post("http://localhost:5001/user/profile/gethistory", { email });
+        const response = await axios.post(`${API_GATEWAY_URL_API}/user/profile/gethistory`, { email });
         console.log("Response", response);
 
         if (response.data.message !== 'No matching history made.') {
@@ -43,7 +44,7 @@ export default function MatchingHistory() {
 
   console.log("History Data ", historyData);
   return (
-    <div>
+    <div id="matchingHistoryPage" className="container">
       <NavBar />
       <div className="matchingHistoryContainer">
         <h1>Matching History</h1>

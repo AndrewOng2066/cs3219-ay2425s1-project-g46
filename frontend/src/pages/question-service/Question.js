@@ -4,6 +4,7 @@ import "./styles/Question.css";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import NavBar from "../../components/NavBar";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 function Question() {
   const [data, setData] = useState([]);
@@ -17,13 +18,13 @@ function Question() {
 
   const [selectedQuestionId, setSelectedQuestionId] = useState(null); // For tracking the question to edit
   const [error, setError] = useState(''); // State to store error message
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Fetch user data from API when the component mounts
   useEffect(() => {
     // Set loading to true before calling API
     setLoading(true);
-    fetch("http://localhost:5000/question/")
+    fetch(`${API_GATEWAY_URL_API}/question/`)
       .then((response) => response.json())
       .then((data) => {
         setData(data)
@@ -76,13 +77,13 @@ function Question() {
 
       if (selectedQuestionId) {
         const response = await axios.put(
-          `http://localhost:5000/question/update/${selectedQuestionId}`,
+          `${API_GATEWAY_URL_API}/question/update/${selectedQuestionId}`,
           formData
         );
         console.log("Form updated successfully:", response.data);
       } else {
         const response = await axios.post(
-          "http://localhost:5000/question/add",
+          `${API_GATEWAY_URL_API}/question/add`,
           formData
         );
         console.log("Form submitted successfully:", response.data);
@@ -118,7 +119,7 @@ function Question() {
       // Set loading to true before calling API
       setLoading(true);
       
-      await axios.delete(`http://localhost:5000/question/delete/${id}`);
+      await axios.delete(`${API_GATEWAY_URL_API}/question/delete/${id}`);
       console.log("Question deleted successfully");
       
       window.location.reload();

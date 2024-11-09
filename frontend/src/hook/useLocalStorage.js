@@ -23,15 +23,14 @@ const useLocalStorage = (initial_value, id) => {
 
     // Otherwise use initial_value that was passed to the function
     return initial_value;
-  }, []);
-  const [state, setState] = useState(_initial_value);
+  }, [state, id]);
 
-  useEffect(() => {
-    const state_str = JSON.stringify(state); // Stringified state
-    setItem(id, state_str); // Set stringified state as item in localStorage
-  }, [state]);
+  const removeState = () => {
+    removeItem(id);
+    setState(initial_value); // Optionally reset the state to the initial value
+  };
 
-  return [state, setState];
+  return [state, setState, removeState];
 };
 
 export default useLocalStorage;

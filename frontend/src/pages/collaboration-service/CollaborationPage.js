@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import ContentEditor from "../../components/ContentEditor";
 import CodeEditor from "../../components/CodeEditor";
 import "./styles/CollaborationPage.css";
-import { collaborationSocket } from "../../config/socket";
+import { apiGatewaySocket } from "../../config/socket";
 import useSessionStorage from "../../hook/useSessionStorage";
 
 import NavBar from "../../components/NavBar";
@@ -25,14 +25,13 @@ const CollaborationPage = () => {
 
   window.onload = () => {
     if (unloadFlag) {
-      collaborationSocket.emit("userReconnect", { id });
+      apiGatewaySocket.emit("userReconnect", { id });
       setUnloadFlag(false);
-      collaborationSocket.emit("reloadSession", { id });
+      apiGatewaySocket.emit("reloadSession", { id });
     }
-    collaborationSocket.emit("receiveCount", { id });
+    apiGatewaySocket.emit("receiveCount", { id });
   };
   const [email,] = useSessionStorage("", "email");
-  const [roomId,] = useSessionStorage("", "roomId");
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -41,62 +40,58 @@ const CollaborationPage = () => {
   const handleSubmit = () => {
     if (isSubmitted) {
       setIsSubmitted(false);
-      collaborationSocket.emit("cancelendSession", { id });
+      apiGatewaySocket.emit("cancelendSession", { id });
     } else {
       setIsSubmitted(true);
-      collaborationSocket.emit("endSession", { id });
+      apiGatewaySocket.emit("endSession", { id });
     }
   };
 
-  collaborationSocket.on("submissionCount", (count, totalUsers) => {
+  apiGatewaySocket.on("submissionCount", ({ count, totalUsers }) => {
     setTotalCount(count);
     setTotalUsers(totalUsers);
   });
 
-  collaborationSocket.on("userDisconnect", () => {
+  apiGatewaySocket.on("userDisconnect", () => {
     setUserDisconnected(true);
     setTotalCount(0);
     setTotalUsers(1);
   });
 
-  collaborationSocket.on("userReconnect", () => {
+  apiGatewaySocket.on("userReconnect", () => {
     setUserDisconnected(false);
   });
 
   window.addEventListener("beforeunload", (event) => {
     setUnloadFlag(true);
-    collaborationSocket.emit("userDisconnect", { id });
+    apiGatewaySocket.emit("userDisconnect", { id });
   });
 
-  collaborationSocket.on("sessionEnded", ({user1Email, user2Email, roomId}) => {
+  apiGatewaySocket.on("sessionEnded", ({ user1Email, user2Email, roomId }) => {
     const otherEmail = email === user1Email ? user2Email : user1Email;
     navigate('/user/userfeedback', {
       state: {
-        otherUserEmail: otherEmail, 
-        roomId: roomId, 
+        otherUserEmail: otherEmail,
+        roomId: roomId,
       },
       replace: true
     });
   });
 
   useEffect(() => {
-    if (email === undefined) {
-      navigate("/");
-    } else if (roomId) {
+    if (id) {
       console.log(`email ${email}`);
-      collaborationSocket.emit("reconnecting", { id: roomId, currentUser: email })
+      apiGatewaySocket.emit("reconnecting", { id: id, currentUser: email })
     }
-  }, [email, navigate, roomId, collaborationSocket]);
+  }, [id, apiGatewaySocket]);
 
   return (
-    <div>
+    <div id="collaborationPageContainer" className="container">
       <NavBar />
       <QuestionPanel questionData={questionData} />
       <div id="tabs">
-        <button onClick={() => handleTabChange("code")} autoFocus>
-          Code
-        </button>
-        <button onClick={() => handleTabChange("content")}>Text</button>
+        <button className={activeTab == "code" ? "active" : ""} onClick={() => handleTabChange("code")}>Code</button>
+        <button className={activeTab == "content" ? "active" : ""} onClick={() => handleTabChange("content")}>Text</button>
         <button id="submitButton" onClick={handleSubmit}>
           {isSubmitted ? "Cancel" : "Submit"}
         </button>
@@ -107,7 +102,7 @@ const CollaborationPage = () => {
           <span id="disconnection-text">The other user has disconnected.</span>
         )}
       </div>
-      
+
       <div id="tab-content">
         {/* Render both components with inline styles for visibility control */}
         <div style={{ display: activeTab === "code" ? "block" : "none" }}>
@@ -117,7 +112,7 @@ const CollaborationPage = () => {
           <ContentEditor id={id} />
         </div>
       </div>
-      <ChatBox id={id}/>
+      <ChatBox id={id} />
     </div>
   );
 };

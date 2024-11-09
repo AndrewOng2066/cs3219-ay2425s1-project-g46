@@ -1,6 +1,6 @@
 // Author(s): Xinyi
 import { useNavigate } from "react-router-dom";
-import "./style/Homepage.css";
+import "./styles/Homepage.css";
 import NavBar from "../../components/NavBar";
 
 const Homepage = () => {

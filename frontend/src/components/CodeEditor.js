@@ -1,12 +1,13 @@
 // Author(s): Xue ling, Calista
 import "./styles/CodeEditor.css";
 import { useEffect, useRef, useState } from "react";
-import { collaborationSocket } from "../config/socket";
+import { apiGatewaySocket } from "../config/socket";
 import Editor from "@monaco-editor/react";
 import supportedLanguages from "../data/supportedLanguages.json";
 import useSessionStorage from "../hook/useSessionStorage";
 import axios from "axios";
 import OutputWindow from "./OutputWindow";
+import { API_GATEWAY_URL_API } from "../config/constant";
 
 const CodeEditor = ({ id }) => {
   const [code, setCode] = useSessionStorage("", "code");
@@ -19,44 +20,44 @@ const CodeEditor = ({ id }) => {
     console.log(id);
 
     // emit once for default values
-    collaborationSocket.emit("sendCode", { id, code });
-    collaborationSocket.emit("languageChange", { id, language });
+    apiGatewaySocket.emit("sendCode", { id, code });
+    apiGatewaySocket.emit("languageChange", { id, language });
   }, [id]);
 
   useEffect(() => {
     console.log(id);
 
-    collaborationSocket.on("receiveCode", ({ code }) => {
+    apiGatewaySocket.on("receiveCode", ({ code }) => {
       setCode(code);
       console.log("code received: ", code);
 
     });
 
-    collaborationSocket.on("languageChange", ({ language }) => {
+    apiGatewaySocket.on("languageChange", ({ language }) => {
       setLanguage(language);
     });
 
     return () => {
-      collaborationSocket.off("receiveCode");
-      collaborationSocket.off("languageChange");
+      apiGatewaySocket.off("receiveCode");
+      apiGatewaySocket.off("languageChange");
     };
   }, [id, language, code]);
 
 
-  collaborationSocket.on("sessionEnded", (socketId) => {
+  apiGatewaySocket.on("sessionEnded", (socketId) => {
     setCode("");
   });
 
 
   function handleEditorChange(code, event) {
     setCode(code);
-    collaborationSocket.emit("sendCode", { id, code });
+    apiGatewaySocket.emit("sendCode", { id, code });
   }
 
   const handleLanguageChange = (event) => {
     const language = event.target.value;
     setLanguage(language);
-    collaborationSocket.emit("languageChange", { id, language });
+    apiGatewaySocket.emit("languageChange", { id, language });
   };
 
   const handleSubmit = async () => {
@@ -70,7 +71,7 @@ const CodeEditor = ({ id }) => {
     try {
       // Step 1: Submit code to backend
       const response = await axios.post(
-        "http://localhost:5003/collaboration/submitCode",
+        `${API_GATEWAY_URL_API}/collaboration/submitCode`,
         {
           code,
           languageId,
@@ -85,7 +86,7 @@ const CodeEditor = ({ id }) => {
       const pollForResult = async (submissionId) => {
         try {
           const resultResponse = await axios.get(
-            `http://localhost:5003/collaboration/getSubmissionResult/${submissionId}`
+            `${API_GATEWAY_URL_API}/collaboration/getSubmissionResult/${submissionId}`
           );
           const result = resultResponse.data;
 

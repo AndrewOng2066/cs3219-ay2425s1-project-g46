@@ -5,6 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import useSessionStorage from "../../hook/useSessionStorage";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 // reference from https://clerk.com/blog/building-a-react-login-page-template
 function Login() {
@@ -43,7 +44,8 @@ function Login() {
       password: password
     }
 
-    axios.post(`http://localhost:5001/user/login`, reqBody).then((response) => {
+    console.warn(`${API_GATEWAY_URL_API}/user/login`);
+    axios.post(`${API_GATEWAY_URL_API}/user/login`, reqBody).then((response) => {
       // store token, email and username into session storage upon successful login
       const token = response.data.token;
       const email = response.data.email;

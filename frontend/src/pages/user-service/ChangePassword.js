@@ -4,6 +4,7 @@ import Validation from "./utils/ChangePasswordValidation"
 import axios from "axios";
 import "./styles/ChangePassword.css";
 import NavBar from "../../components/NavBar";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 import useSessionStorage from "../../hook/useSessionStorage";
 
 function ChangePassword() {
@@ -37,7 +38,7 @@ function ChangePassword() {
       values.confirmPassword !== "" &&
       validationErrors.password === "" &&
       validationErrors.confirmPassword === "") {
-      axios.post(`http://localhost:5001/user/profile/changepassword`, {...values, email}) // Add email here to ensure that email is always included
+      axios.post(`${API_GATEWAY_URL_API}/user/profile/changepassword`, {...values, email}) // Add email here to ensure that email is always included
         .then(res => {
           setValues({
             oldPassword: '',
@@ -59,7 +60,7 @@ function ChangePassword() {
 
 
   return (
-    <div >
+    <div id="changePasswordPage" className="container">
       <NavBar />
       <div id="changePasswordFormContainer">
         <h1>Change Password</h1>

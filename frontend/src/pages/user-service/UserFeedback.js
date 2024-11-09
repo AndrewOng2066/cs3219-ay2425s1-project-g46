@@ -6,6 +6,7 @@ import "./styles/UserFeedback.css";
 import NavBar from "../../components/NavBar";
 import RatingReview from "../../components/RatingReview";
 import useSessionStorage from "../../hook/useSessionStorage";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 function Signup() {
   const email = useSessionStorage("", "email")[0];
@@ -61,7 +62,7 @@ function Signup() {
     };
 
     // If all fields are filled, proceed with submission
-    axios.post("http://localhost:5001/user/adduserreview", requestedData)
+    axios.post(`${API_GATEWAY_URL_API}/user/adduserreview`, requestedData)
       .then(res => {
         setValues({
           email: '',
@@ -83,7 +84,7 @@ function Signup() {
 
 
   return (
-    <div >
+    <div id="userFeedbackPage" className="container">
       <NavBar />
       <div id="feedbackFormContainer">
         <h1>Feedback Form</h1>

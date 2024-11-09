@@ -1,7 +1,7 @@
 // Author(s): Andrew
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { matchingSocket } from "../../config/socket";
+import { apiGatewaySocket } from "../../config/socket";
 import "./styles/Select.css";
 import NavBar from "../../components/NavBar";
 import useSessionStorage from "../../hook/useSessionStorage";
@@ -75,7 +75,7 @@ function Select() {
       };
 
       // Emit a message to the server when submitting
-      matchingSocket.emit("join_matching_queue", updatedFormData);
+      apiGatewaySocket.emit("join_matching_queue", updatedFormData);
 
       navigate(`/matching/findingmatch`, { state: updatedFormData });
     }

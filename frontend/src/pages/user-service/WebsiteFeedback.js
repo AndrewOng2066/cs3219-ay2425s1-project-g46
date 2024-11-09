@@ -1,9 +1,9 @@
 // Author(s): Andrew
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./styles/WebsiteFeedback.css";
 import NavBar from "../../components/NavBar";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 function WebsiteFeedback() {
   const [values, setValues] = useState({
@@ -40,7 +40,7 @@ function WebsiteFeedback() {
       return;
     }
 
-    axios.post("http://localhost:5001/user/addwebsitefeedback", { feedbackContent: values })
+    axios.post(`${API_GATEWAY_URL_API}/user/addwebsitefeedback`, { feedbackContent: values })
     .then(res => {
       setValues(prevValues => ({
         ...prevValues,
@@ -56,7 +56,7 @@ function WebsiteFeedback() {
 
 
   return (
-    <div>
+    <div id="websiteFeedbackPage" className="container">
         <NavBar />
         <div id="WebsiteFeedbackFormContainer">
             <h1>Website Feedback</h1>

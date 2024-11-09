@@ -2,6 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 function Logout() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ function Logout() {
   const logout = (event) => {
     // prevent page reload
     event.preventDefault();
-    axios.post(`http://localhost:5001/user/logout`).then((response) => {
+    axios.post(`${API_GATEWAY_URL_API}/user/logout`).then((response) => {
       // clear token, email and username from session storage
       sessionStorage.clear();
       // display successful logout message in console

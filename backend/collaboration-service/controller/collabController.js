@@ -61,7 +61,7 @@ const getSubmissionResult = async (req, res) => {
     let error = err.response
       ? err.response.data
       : { message: "Internal Server Error" };
-    return res.status(500).json(error); // Handle errors appropriately
+    return res.status(500).json({ error: error }); // Handle errors appropriately
   }
 };
 

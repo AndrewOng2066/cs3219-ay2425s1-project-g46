@@ -4,7 +4,7 @@ const router = express.Router();
 
 const {
   createQuestion,
-  getAllQuestions,
+  getQuestions,
   getQuestionById,
   updateQuestion,
   deleteQuestion,
@@ -12,7 +12,7 @@ const {
   getRandomQuestionsByCategoryAndComplexity
 } = require("../controller/questionController");
 
-router.get("/", getAllQuestions);
+router.get("/", getQuestions);
 router.get("/:questionId", getQuestionById);
 router.post("/add", createQuestion);
 router.put("/update/:questionId", updateQuestion);

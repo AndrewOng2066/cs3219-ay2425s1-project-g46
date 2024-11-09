@@ -1,10 +1,10 @@
 import React from 'react';
 import "./styles/ReviewCard.css";
 
-export const ReviewCard = ({review}) => {
+export const ReviewCard = (props) => {
   // Generate stars for rating
   const stars = Array.from({ length: 5 }, (_, index) => (
-    <span key={index} style={{ color: index < review.rating ? 'gold' : 'gray', fontSize: '20px' }}>
+    <span key={index} style={{ color: index < props.rating ? 'gold' : 'gray', fontSize: '20px' }}>
       ★
     </span>
   ));
@@ -26,9 +26,9 @@ export const ReviewCard = ({review}) => {
   return (
     <div className='reviewCard'>
       <p><strong>Rating:</strong> {stars}</p>
-      <p><strong>Comment:</strong> {review.comment}</p>
-      <p><strong>From:</strong> {review.by}</p>
-      <p className='fromText'> {formatDate(review.timestamp)}</p>
+      <p><strong>Comment:</strong> {props.comment}</p>
+      <p><strong>From:</strong> {props.by}</p>
+      <p className='fromText'> {formatDate(props.timestamp)}</p>
     </div>
   );
 };

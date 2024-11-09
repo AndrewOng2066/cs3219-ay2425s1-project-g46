@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { collaborationSocket } from "../config/socket";
+import { apiGatewaySocket } from "../config/socket";
 import "./styles/ChatBox.css";
 import useSessionStorage from "../hook/useSessionStorage";
 
@@ -9,6 +9,7 @@ const ChatBox = ({ id }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [email,] = useSessionStorage("", "email");
+  const username = sessionStorage.getItem("username");
 
 
   const openForm = () => {
@@ -24,9 +25,9 @@ const ChatBox = ({ id }) => {
     e.preventDefault();
     console.log("Message sent:", message);
     
-    const formattedMessage = `${email}: ${message}`;
-    collaborationSocket.emit("sendMessage", { id, message: formattedMessage });
-    setMessages((prevMessages) => [...prevMessages, `${email}: ${message}`]);
+    const formattedMessage = `${username}: ${message}`;
+    apiGatewaySocket.emit("sendMessage", { id, message: formattedMessage });
+    // setMessages((prevMessages) => [...prevMessages, `${username}: ${message}`]);
     setMessage(""); 
 
     const messagesBox = document.getElementById('messagesbox');
@@ -53,9 +54,9 @@ const ChatBox = ({ id }) => {
     
 
     
-    collaborationSocket.on("receiveMessage", receiveMessageHandler);
+    apiGatewaySocket.on("receiveMessage", receiveMessageHandler);
     return () => {
-        collaborationSocket.off("receiveMessage", receiveMessageHandler);
+        apiGatewaySocket.off("receiveMessage", receiveMessageHandler);
         };
     }, [id]);
 

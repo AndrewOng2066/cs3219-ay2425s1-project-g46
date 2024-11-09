@@ -4,7 +4,8 @@ import NavBar from "../../components/NavBar";
 import "./styles/Profile.css";
 import { ReviewCard } from '../../components/ReviewCard';
 import AvatarImage from '../../components/AvatarImage';
-import useSessionStorage from '../../hook/useSessionStorage';
+import useSessionStorage from "../../hook/useSessionStorage";
+import { API_GATEWAY_URL_API } from '../../config/constant';
 
 function Profile() {
   const [values, setValues] = useState({
@@ -24,8 +25,8 @@ function Profile() {
 
   useEffect(() => {
     if (email) {
-      console.log(`Fetching profile for email: ${email} from URL: http://localhost:5001/user/profile/${email}`);
-      fetch(`http://localhost:5001/user/profile/${email}`)
+      console.log(`Fetching profile for email: ${email} from URL: ${API_GATEWAY_URL_API}/user/profile/${email}`);
+      fetch(`${API_GATEWAY_URL_API}/user/profile/${email}`)
         .then((response) => {
           console.log('Response status:', response.status);
           if (!response.ok) {
@@ -34,7 +35,7 @@ function Profile() {
           return response.json();
         })
         .then((data) => {
-          console.log('Fetched user data:', data); 
+          console.log('Fetched user data:', data);
           setValues({
             username: data.username,
             email: data.email,
@@ -54,42 +55,41 @@ function Profile() {
 
   //The below should be for reviews. 
   // Fetch reviews
-  // Fetch reviews
-useEffect(() => {
-  if (email) {
-    fetch(`http://localhost:5001/user/getuserreview/${email}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Review data could not be fetched. Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log('Fetched review data:', data);
-        let reviewsArray = Object.values(data || {});
-        
-        // Sort reviews by timestamp in descending order
-        reviewsArray = reviewsArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  useEffect(() => {
+    if (email) {
+      fetch(`${API_GATEWAY_URL_API}/user/getuserreview/${email}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Review data could not be fetched. Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('Fetched review data:', data);
+          let reviewsArray = Object.values(data || {});
 
-        setReviews(reviewsArray);
-        setReviewsLoading(false);
+          // Sort reviews by timestamp in descending order
+          reviewsArray = reviewsArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-        // Calculate the overall rating
-        if (reviewsArray.length > 0) {
-          const totalRating = reviewsArray.reduce((sum, review) => sum + review.rating, 0);
-          setOverallRating((totalRating / reviewsArray.length).toFixed(1));
-        } else {
-          setOverallRating(null);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching reviews:", error);
-        setReviewsLoading(false);
-      });
-  } else {
-    setReviewsLoading(false);
-  }
-}, [email]);
+          setReviews(reviewsArray);
+          setReviewsLoading(false);
+
+          // Calculate the overall rating
+          if (reviewsArray.length > 0) {
+            const totalRating = reviewsArray.reduce((sum, review) => sum + review.rating, 0);
+            setOverallRating((totalRating / reviewsArray.length).toFixed(1));
+          } else {
+            setOverallRating(null);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching reviews:", error);
+          setReviewsLoading(false);
+        });
+    } else {
+      setReviewsLoading(false);
+    }
+  }, [email]);
 
 
   if (profileLoading || reviewsLoading) {
@@ -97,7 +97,7 @@ useEffect(() => {
   }
 
   return (
-    <div>
+    <div id="profilePage" className="container">
       <NavBar />
       <div id="profileContainer">
         <h1>My Profile</h1>
@@ -110,7 +110,7 @@ useEffect(() => {
             <h2 id='email'>{values.email}</h2>
           </div>
         </div>
-        
+
         <div className='button-group'>
           <button className="history-button" onClick={() => navigate('/user/matchinghistory')} >Matching History</button>
           <button className="website-feedback-button" onClick={() => navigate('/user/websitefeedback')} >Website Feedback</button>
@@ -125,8 +125,11 @@ useEffect(() => {
           {reviews.length > 0 ? (
             Object.entries(reviews).map(([key, review]) => (
               <ReviewCard
-                key={key} 
-                review = {review}
+                key={key}
+                rating={review.rating}
+                comment={review.comment}
+                by={review.by}
+                timestamp={review.timestamp}
               />
             ))
           ) : (

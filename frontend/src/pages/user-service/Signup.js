@@ -5,6 +5,7 @@ import Validation from "./utils/SignupValidation"
 import axios from "axios";
 import "./styles/Signup.css";
 import NavBar from "../../components/NavBar";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 function Signup() {
   const [values, setValues] = useState({
@@ -36,7 +37,7 @@ function Signup() {
       validationErrors.email === "" &&
       validationErrors.password === "" &&
       validationErrors.confirmPassword === "") {
-      axios.post("http://localhost:5001/user/signup", values)
+      axios.post(`${API_GATEWAY_URL_API}/user/signup`, values)
         .then(res => {
           navigate('/user/login');
           setValues({
@@ -82,8 +83,8 @@ function Signup() {
             <input type='password' placeholder='Confirm Password' name='confirmPassword' value={values.confirmPassword} onChange={handleInput} className='inputBox' />
             {errors.confirmPassword && <span className='errorLabel'> {errors.confirmPassword}</span>}
           </div>
-          <div class="registerButton">
-            <button class="register-button">Register</button>
+          <div className="registerButton">
+            <button className="register-button">Register</button>
           </div>
 
         </form>
