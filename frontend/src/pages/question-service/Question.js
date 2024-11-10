@@ -5,6 +5,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import { API_GATEWAY_URL_API } from "../../config/constant";
+import useSessionStorage from "../../hook/useSessionStorage";
 
 function Question() {
   const [data, setData] = useState([]);
@@ -20,22 +21,36 @@ function Question() {
   const [error, setError] = useState(''); // State to store error message
   const [loading, setLoading] = useState(false);
 
+  const [adminPriviledge, setAdminPriviledge] = useState(false);
+  const [email, setEmail] = useSessionStorage("", "email");
+  const allowedEmail = "admin@gmail.com"
+  // let adminPriviledge = false
+  // const loggedInUserEmail = localStorage.getItem("email");
+  
+
   // Fetch user data from API when the component mounts
   useEffect(() => {
     // Set loading to true before calling API
     setLoading(true);
+    if (allowedEmail == email) {
+      setAdminPriviledge(true)
+      console.log(adminPriviledge)
+    }
     fetch(`${API_GATEWAY_URL_API}/question/`)
       .then((response) => response.json())
       .then((data) => {
         setData(data)
         // Switch loading to false after fetch is completed
         setLoading(false);
+        
+        
       })
       .catch((error) => {
         setData(null);
         setLoading(false);
         console.error("Error fetching data:", error)
-      });
+      }); 
+      
   }, []);
 
   if (loading) {
@@ -70,6 +85,8 @@ function Question() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+
     console.log("Input text before sending:", formData);
     try {
       // Set loading to true before calling API
@@ -144,50 +161,57 @@ function Question() {
       <NavBar />
       <div id="question">
         {/* <h1>Make Questions</h1> */}
-        <h1>{selectedQuestionId ? "Edit Question" : "Make Questions"}</h1>
-        <form id="questionForm" onSubmit={handleSubmit}>
-          <div>
-            <input
-              type="Title"
-              name="title"
-              placeholder="Title"
-              value={formData.title}
-              onChange={handleFormChange}
-              autoComplete="off"
-              required
-            />
-            <input
-              type="Category"
-              name="category"
-              placeholder="Category"
-              value={formData.category}
-              onChange={handleFormChange}
-              required
-            />
-            <select name="complexity" value={formData.complexity} onChange={handleFormChange} required>
-              <option value="">Select Complexity</option>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </div>
-          <div>
-            <textarea
-              id="description"
-              name="description"
-              placeholder="Enter your description here..."
-              value={formData.description}
-              onChange={handleFormChange}
-            ></textarea>
-            {/* <button type="submit">Add</button> */}
-            <button type="submit">{selectedQuestionId ? "Update" : "Add"}</button>
-            {selectedQuestionId && (
-              <button type="button" onClick={handleReturnToAdd}>
-                Return to Add Question
-              </button>
-            )}
-          </div>
-        </form>
+        {adminPriviledge && (
+          <>
+          <h1>{selectedQuestionId ? "Edit Question" : "Make Questions"}</h1>
+          <form id="questionForm" onSubmit={handleSubmit}>
+            <div>
+              <input
+                type="Title"
+                name="title"
+                placeholder="Title"
+                value={formData.title}
+                onChange={handleFormChange}
+                autoComplete="off"
+                required
+              />
+              <input
+                type="Category"
+                name="category"
+                placeholder="Category"
+                value={formData.category}
+                onChange={handleFormChange}
+                required
+              />
+              <select name="complexity" value={formData.complexity} onChange={handleFormChange} required>
+                <option value="">Select Complexity</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div>
+              <textarea
+                id="description"
+                name="description"
+                placeholder="Enter your description here..."
+                value={formData.description}
+                onChange={handleFormChange}
+              ></textarea>
+              {/* <button type="submit">Add</button> */}
+              <button type="submit" >{selectedQuestionId ? "Update" : "Add"}</button>
+              {selectedQuestionId && (
+                <button type="button" onClick={handleReturnToAdd}>
+                  Return to Add Question
+                </button>
+              )}
+            </div>
+          </form>
+          </>
+        )}
+
+
+
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <div>
           <h1>Questions List</h1>
@@ -207,7 +231,7 @@ function Question() {
                 <th>Category</th>
                 <th>Complexity</th>
                 <th>Description</th>
-                <th>Actions</th>
+                {adminPriviledge && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -222,12 +246,14 @@ function Question() {
                   <td>{item.category.join(", ")}</td>
                   <td id="complexity">{item.complexity}</td>
                   <td>{item.description}</td>
-                  <td>
-                    <div className="action-button-container">
-                      <button className="edit-question" onClick={() => handleEdit(item)}>Edit</button>
-                      <button className="delete-question" onClick={() => handleDelete(item.id)}>Delete</button>
-                    </div>
-                  </td>
+                  {adminPriviledge && (
+                    <td>
+                      <div className="action-button-container">
+                        <button className="edit-question" onClick={() => handleEdit(item)}>Edit</button>
+                        <button className="delete-question" onClick={() => handleDelete(item.id)}>Delete</button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

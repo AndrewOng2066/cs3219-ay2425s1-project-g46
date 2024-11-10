@@ -133,8 +133,12 @@ const handleSocketIO = (io) => {
       const user2 = socketMap[user2Email];
       const user1Socket = io.sockets.sockets.get(user1);
       const user2Socket = io.sockets.sockets.get(user2);
-      user1Socket.disconnect();
-      user2Socket.disconnect();
+      if (user1Socket) {
+        user1Socket.disconnect();
+      }
+      if (user2Socket) {
+        user2Socket.disconnect();
+      }
     });
 
     socket.on("submissionCount", ({ id, count, totalUsers }) => {

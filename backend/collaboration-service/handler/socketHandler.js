@@ -15,6 +15,7 @@ let haveNewData = {};
 let activeUserInRoom = {}; // track user details in rooms
 let confirmedUsers = {};
 let usersData = {};
+let isRefreshOrClose = false;
 
 const handleSocketIO = (apiGatewaySocket) => {
   apiGatewaySocket.on("connect", () => {
@@ -150,10 +151,12 @@ const handleSocketIO = (apiGatewaySocket) => {
 
   apiGatewaySocket.on("userDisconnect", ({ id }) => {
     confirmedUsers[id] = 0;
+    isRefreshOrClose = true;
     apiGatewaySocket.emit("sendUserDisconnect", { id: id });
   });
 
   apiGatewaySocket.on("userReconnect", ({ id }) => {
+    isRefreshOrClose = false;
     apiGatewaySocket.emit("sendUserReconnect", { id: id });
   });
 
@@ -165,14 +168,13 @@ const handleSocketIO = (apiGatewaySocket) => {
     // console.log(
     //   `Reloaded - User with socket ID ${socket.id} joined room with ID ${id}`
     // );
-    if (activeUserInRoom[id]) {
-      activeUserInRoom[id] = activeUserInRoom[id] + 1;
-    }
+    isRefreshOrClose = false;
     apiGatewaySocket.emit("submissionCount", {
       id: id,
       count: confirmedUsers[id],
       totalUsers: activeUserInRoom[id],
     });
+
   });
 
   apiGatewaySocket.on("receiveCount", ({ id }) => {
@@ -184,39 +186,58 @@ const handleSocketIO = (apiGatewaySocket) => {
   });
 
   apiGatewaySocket.on("socketDisconnect", ({ roomId }) => {
+    if (typeof activeUserInRoom[roomId] === "undefined" || isNaN(activeUserInRoom[roomId])) {
+            activeUserInRoom[roomId] = 0;
+    }
+
     activeUserInRoom[roomId] = Math.max(
       0,
       activeUserInRoom[roomId] - 1
     );
 
-    console.log(activeUserInRoom[roomId]);
-    if (activeUserInRoom[roomId] == 0) {
-      console.log(
-        `All users in roomId ${roomId} disconnected, deleting room data`
-      );
-      delete activeUserInRoom[roomId];
+    console.log("HELP", activeUserInRoom[roomId]);
+    setTimeout(() => {
+      if (!isRefreshOrClose) { //reconnected
+        activeUserInRoom[roomId] += 1; 
+        apiGatewaySocket.emit("submissionCount", {
+          id: roomId,
+          count: confirmedUsers[roomId],
+          totalUsers: activeUserInRoom[roomId],
+        });
+      } isRefreshOrClose = true;
+    }, 2000);
 
-      clearInterval(intervalMap[roomId]);
-      delete intervalMap[roomId];
-      delete latestContentText[roomId];
-      delete latestContentCode[roomId];
-      delete latestLanguage[roomId];
-      delete haveNewData[roomId];
-    }
+    setTimeout(() => {
+      console.log(activeUserInRoom[roomId]);
 
-    // for (let user in socketMap) {
-    //   if (socketMap[user] === socket.id) {
-    //     delete socketMap[user];
-    //     break;
-    //   }
-    // }
+      if (activeUserInRoom[roomId] == 0) {
+        console.log(
+          `All users in roomId ${roomId} disconnected, deleting room data`
+        );
+        delete activeUserInRoom[roomId];
 
-    // if (socket.roomId) {
-    //   socket.leave(socket.roomId);
-    //   console.log(`User with socket ID ${socket.id} disconnected, leaving ${socket.roomId}`);
-    // } else {
-    //   console.log(`User with socket ID ${socket.id} disconnected`);
-    // }
+        clearInterval(intervalMap[roomId]);
+        delete intervalMap[roomId];
+        delete latestContentText[roomId];
+        delete latestContentCode[roomId];
+        delete latestLanguage[roomId];
+        delete haveNewData[roomId];
+      }
+
+      // for (let user in socketMap) {
+      //   if (socketMap[user] === socket.id) {
+      //     delete socketMap[user];
+      //     break;
+      //   }
+      // }
+
+      // if (socket.roomId) {
+      //   socket.leave(socket.roomId);
+      //   console.log(`User with socket ID ${socket.id} disconnected, leaving ${socket.roomId}`);
+      // } else {
+      //   console.log(`User with socket ID ${socket.id} disconnected`);
+      // }
+    }, 5000);
   });
 };
 

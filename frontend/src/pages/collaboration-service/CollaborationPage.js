@@ -31,7 +31,7 @@ const CollaborationPage = () => {
     }
     apiGatewaySocket.emit("receiveCount", { id });
   };
-  const [email,] = useSessionStorage("", "email");
+  const [email] = useSessionStorage("", "email");
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -48,8 +48,11 @@ const CollaborationPage = () => {
   };
 
   apiGatewaySocket.on("submissionCount", ({ count, totalUsers }) => {
-    setTotalCount(count);
-    setTotalUsers(totalUsers);
+    setTimeout(() => {
+      setTotalCount(count);
+      setTotalUsers(totalUsers);
+    }, 1000)
+   
   });
 
   apiGatewaySocket.on("userDisconnect", () => {
@@ -69,19 +72,19 @@ const CollaborationPage = () => {
 
   apiGatewaySocket.on("sessionEnded", ({ user1Email, user2Email, roomId }) => {
     const otherEmail = email === user1Email ? user2Email : user1Email;
-    navigate('/user/userfeedback', {
+    navigate("/user/userfeedback", {
       state: {
         otherUserEmail: otherEmail,
         roomId: roomId,
       },
-      replace: true
+      replace: true,
     });
   });
 
   useEffect(() => {
     if (id) {
       console.log(`email ${email}`);
-      apiGatewaySocket.emit("reconnecting", { id: id, currentUser: email })
+      apiGatewaySocket.emit("reconnecting", { id: id, currentUser: email });
     }
   }, [id, apiGatewaySocket]);
 
@@ -90,8 +93,18 @@ const CollaborationPage = () => {
       <NavBar />
       <QuestionPanel questionData={questionData} />
       <div id="tabs">
-        <button className={activeTab == "code" ? "active" : ""} onClick={() => handleTabChange("code")}>Code</button>
-        <button className={activeTab == "content" ? "active" : ""} onClick={() => handleTabChange("content")}>Text</button>
+        <button
+          className={activeTab == "code" ? "active" : ""}
+          onClick={() => handleTabChange("code")}
+        >
+          Code
+        </button>
+        <button
+          className={activeTab == "content" ? "active" : ""}
+          onClick={() => handleTabChange("content")}
+        >
+          Text
+        </button>
         <button id="submitButton" onClick={handleSubmit}>
           {isSubmitted ? "Cancel" : "Submit"}
         </button>
