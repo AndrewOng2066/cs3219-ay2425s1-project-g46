@@ -115,4 +115,3 @@ networks:
   peerprep-network: # Defines a network named 'peerprep-network'.
     name: peerprep-network
     driver: bridge # Uses the bridge driver for the network, which is the default and most common network type in Docker.
-    external: true
