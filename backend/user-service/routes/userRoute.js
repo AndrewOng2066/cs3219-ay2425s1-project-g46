@@ -7,12 +7,14 @@ const {
     login,
     logout,
     getUser,
-    getReview,
-    updateAvatar
+    updateAvatar,
+    changePassword,
+    getHistory
 } = require("../controller/userController");
 
-const { 
+const {
     addReview,
+    getReview,
     addWebsiteFeedback
 } = require("../controller/feedbackController");
 
@@ -21,8 +23,10 @@ router.post('/login', login);
 router.post('/logout', logout);
 router.get("/profile/:email", getUser);
 router.post("/profile/updateavatar", updateAvatar);
-router.get("/review/:email", getReview);
-router.post("/review/addreview", addReview);
-router.post("/feedback/addwebsitefeedback", addWebsiteFeedback);
+router.post("/profile/changepassword", changePassword);
+router.post("/profile/gethistory", getHistory);
+router.post("/adduserreview", addReview);
+router.get("/getuserreview/:email", getReview);
+router.post("/addwebsitefeedback", addWebsiteFeedback);
 
 module.exports = router;

@@ -38,9 +38,8 @@
   }
 }
 
-
 body {
-  font-family: var(--sds-typography-code-font-family);
+  /* font-family: var(--sds-typography-code-font-family); */
   background-color: #f2f2f2;
   margin: 0;
   padding: 0;
@@ -54,6 +53,19 @@ label {
   font-weight: bold;
   margin-bottom: 10px;
   display: block;
+}
+
+.container,
+.containers {
+  /* background-color: #f2f2f2; */
+  padding: 5px 20px 15px 20px;
+  /* border: 1px solid lightgrey; */
+  border-radius: 3px;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  box-shadow: 0 0px 3px 1px rgba(0, 0, 0, 0.2);
+
+  margin-top: 1rem;
 }
 
 @media (min-width: 576px) {

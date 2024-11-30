@@ -1,28 +1,37 @@
 // Author(s): Xue Ling, Xiu Jia
 require("dotenv").config();
 
-const http = require("http");
-const { Server } = require("socket.io");
-const port = process.env.PORT || 5003;
+const express = require("express");
+const cors = require("cors");
+const { io } = require("socket.io-client");
 
 // Import the socket handler
 const { handleSocketIO } = require("./handler/socketHandler.js");
 
-// Create an HTTP server that works with both Express and Socket.IO
-const server = http.createServer();
+const port = process.env.PORT || 5003;
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL || "http://localhost:8000";
 
-// Initialize the Socket.IO server
-const io = new Server(server, {
-  cors: {
-    origin: "*", // Allow all origins, adjust as needed
-    methods: ["GET", "POST"],
-  },
-});
+
+// Import route
+const collaborationRoute = require("./routes/collaborationRoute");
+
+// Create an instance of Express app
+const app = express();
+app.use(express.json());
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+
+// Initialize the Socket.IO client
+const apiGatewaySocket = io(API_GATEWAY_URL);
 
 // Trigger handleSocketIO to start listening for Socket.IO events
-handleSocketIO(io); // This calls the function to set up the socket listeners
+handleSocketIO(apiGatewaySocket); // This calls the function to set up the socket listeners
+
+// Routes
+app.use("/collaboration", collaborationRoute);
 
 // Start the server
-server.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+

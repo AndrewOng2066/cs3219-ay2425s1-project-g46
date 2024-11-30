@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
+import { API_GATEWAY_URL } from "./constant";
 
-const matchingSocket = io(process.env.MATCHING_SOCKET_URL || 'http://localhost:5002');
-const collaborationSocket = io(process.env.COLLABORATION_SOCKET_URL || 'http://localhost:5003');
+const apiGatewaySocket = io(API_GATEWAY_URL);
 
 
-export { matchingSocket, collaborationSocket };
+export { apiGatewaySocket };

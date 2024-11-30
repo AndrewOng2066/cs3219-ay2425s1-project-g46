@@ -22,11 +22,11 @@ const createQuestion = async (req, res) => {
 
     const querySnap = await questionCollection.where('title', '==', req.body.title.trim()).get();
     if (!querySnap.empty) {
-      return res.status(409).json({ message: 'Duplicate entry found' });
+      return res.status(409).send({ error: 'Duplicate entry found' });
     }
 
-    const response = questionCollection.doc().set(questionJson); // Added 'await'
-    res.send({ message: "Question created successfully", response });
+    const response = await questionCollection.doc().set(questionJson); // Added 'await'
+    res.status(200).send({ message: "Question created successfully", response });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -41,14 +41,14 @@ const createQuestion = async (req, res) => {
  * - 200: Returns an array of data matching the query parameters.
  * - 500: Server error if something goes wrong while fetching data.
  */
-const getAllQuestions = async (req, res) => {
+const getQuestions = async (req, res) => {
   try {
     const questions = await questionCollection.get();
 
     const questionArray = [];
 
     if (questions.empty) {
-      res.status(400).send("No questions found.");
+      res.status(400).send({ error: "No questions found." });
     }
 
     questions.forEach((doc) => {
@@ -58,7 +58,7 @@ const getAllQuestions = async (req, res) => {
     res.status(200).json(questionArray);
   } catch (error) {
     console.error("Error fetching data from Firebase:", error);
-    res.status(500).json({ message: "Error fetching data from Firebase" });
+    res.status(500).send({ error: "Error fetching data from Firebase" });
   }
 };
 
@@ -78,7 +78,7 @@ const getQuestionById = async (req, res) => {
     const data = await question.get();
 
     if (!data.exists) {
-      return res.status(404).send({ message: "Question not found" });
+      return res.status(404).send({ error: "Question not found" });
     }
 
     res.status(200).send(data.data());
@@ -108,13 +108,13 @@ const updateQuestion = async (req, res) => {
     if (!querySnap.empty) {
       for (const doc of querySnap.docs) {
         if (doc.id != questionId) {
-          return res.status(409).json({ message: 'Duplicate entry found' });
+          return res.status(409).send({ error: 'Duplicate entry found' });
         }
       }
     }
     const response = await questionCollection.doc(questionId).set(updatedQuestion, { merge: true });
 
-    res.send({ message: "Question updated successfully", response });
+    res.status(200).send({ message: "Question updated successfully", response });
   } catch (error) {
     console.log(error.message)
     res.status(500).send({ error: error.message });
@@ -128,12 +128,12 @@ const updateQuestion = async (req, res) => {
  */
 const deleteQuestion = async (req, res) => {
   try {
-    const questionId = req.params.questionId; 
+    const questionId = req.params.questionId;
     console.log("Deleting question ID:", questionId);
-    
+
     await questionCollection.doc(questionId).delete();
 
-    res.send({ message: "Question deleted successfully" });
+    res.status(200).send({ message: "Question deleted successfully" });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -156,11 +156,11 @@ const getRandomQuestionsByCategory = async (req, res) => {
     const questions = await questionCollection.where("category", "array-contains", category).get();
 
     if (questions.empty) {
-      res.status(400).send("No questions found.");
+      res.status(400).send({ error: "No questions found." });
     }
 
     const questionArray = [];
-    
+
     questions.forEach((doc) => {
       questionArray.push({ id: doc.id, ...doc.data() });
     });
@@ -193,7 +193,7 @@ const getRandomQuestionsByCategoryAndComplexity = async (req, res) => {
     const questions = await questionCollection.where("category", "array-contains", category).where("complexity", "==", complexity).get();
 
     if (questions.empty) {
-      res.status(400).send("No questions found.");
+      res.status(400).send({ error: "No questions found." });
     }
 
     const questionArray = [];
@@ -214,11 +214,12 @@ const getRandomQuestionsByCategoryAndComplexity = async (req, res) => {
 }
 
 
-module.exports = { createQuestion,
-                    getAllQuestions,
-                    getQuestionById,
-                    updateQuestion,
-                    deleteQuestion,
-                    getRandomQuestionsByCategory,
-                    getRandomQuestionsByCategoryAndComplexity
-                  };
+module.exports = {
+  createQuestion,
+  getQuestions,
+  getQuestionById,
+  updateQuestion,
+  deleteQuestion,
+  getRandomQuestionsByCategory,
+  getRandomQuestionsByCategoryAndComplexity
+};

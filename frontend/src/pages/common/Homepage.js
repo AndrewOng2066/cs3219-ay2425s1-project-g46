@@ -1,7 +1,7 @@
 // Author(s): Xinyi
 import { useNavigate } from "react-router-dom";
 import "./styles/Homepage.css";
-import NavBar from "./NavBar";
+import NavBar from "../../components/NavBar";
 
 const Homepage = () => {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ const Homepage = () => {
   const isLoggedIn = sessionStorage.token;
 
   return (
-    <div id="homepageContainer">
+    <div id="homepageContainer" className="container">
       <NavBar />
       <div id="homepageContext">
         <div id="homepageContextContent">

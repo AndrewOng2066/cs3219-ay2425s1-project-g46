@@ -1,9 +1,41 @@
+#selectPageContainer {
+  /* flex-direction: column; */
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: center; */
+  /* min-height: 100%; */
+
+  width: var(--Device-Width, 1200px);
+  height: auto;
+  flex-shrink: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding-bottom: 15px;
+
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 10px;
+  border-radius: 16px;
+
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
 #SelectFormContainer {
   flex-direction: column;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100%;
+}
+
+#SelectFormContainer form {
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #SelectFormContainer h1 {

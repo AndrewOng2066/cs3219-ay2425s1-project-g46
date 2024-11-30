@@ -1,28 +1,35 @@
 // Author(s): Andrew
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./styles/UserFeedback.css";
 import NavBar from "../../components/NavBar";
 import RatingReview from "../../components/RatingReview";
+import useSessionStorage from "../../hook/useSessionStorage";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 function Signup() {
+  const email = useSessionStorage("", "email")[0];
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { otherUserEmail, roomId } = location.state || {};
+
   const [values, setValues] = useState({
-    email: '',
+    otherUserEmail: otherUserEmail,
     rating: 0,
     comment: '',
+    roomId: roomId,
   });
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState(''); // State for success message
   const [errorMessage, setErrorMessage] = useState(''); // State for error message
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleInput = (event) => {
     setValues(prev => ({ ...prev, [event.target.name]: event.target.value }));
 
   };
-
-  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -34,7 +41,7 @@ function Signup() {
 
     // Simple validation: check if fields are empty
     let newErrors = {};
-    if (!values.email) newErrors.email = "Email is required.";
+    if (!values.otherUserEmail) newErrors.otherUserEmail = "Email is required.";
     if (!values.rating) newErrors.rating = "Rating is required.";
     if (!values.comment) newErrors.comment = "Comment is required.";
 
@@ -45,16 +52,17 @@ function Signup() {
     }
 
     const requestedData = {
-      email: values.email,
+      otherUserEmail: values.otherUserEmail,
       newReview: {
-        by: sessionStorage.getItem("email"),
+        by: email,
         comment: values.comment,
-        rating: values.rating
+        rating: values.rating,
+        roomId: roomId
       }
     };
 
     // If all fields are filled, proceed with submission
-    axios.post("http://localhost:5001/user/review/addreview", requestedData)
+    axios.post(`${API_GATEWAY_URL_API}/user/adduserreview`, requestedData)
       .then(res => {
         setValues({
           email: '',
@@ -62,11 +70,15 @@ function Signup() {
           comment: ''
         });
         setSuccessMessage("Feedback submitted successfully!");
+        setIsSubmitted(true);
       })
       .catch(err => {
         if (err.response && err.response.data.message) {
           setErrors(prevErrors => ({ ...prevErrors, email: err.response.data.message }));
         } else {
+          if (err.response && err.response.status === 429) {
+            alert("You have exceeded the rate limit. Please wait a moment and try again.");
+          }
           console.log(err);
         }
         setErrorMessage("An error occurred. Please try again.");
@@ -75,7 +87,7 @@ function Signup() {
 
 
   return (
-    <div >
+    <div id="userFeedbackPage" className="container">
       <NavBar />
       <div id="feedbackFormContainer">
         <h1>Feedback Form</h1>
@@ -85,14 +97,14 @@ function Signup() {
             {errorMessage && <p className="errorLabel">{errorMessage}</p>}
             </div>
           <div className='formGroup'>
-            <label htmlFor='email' className='inputLabel'><strong>Email</strong></label>
-            <input type='email' placeholder='Email' name='email' value={values.email} onChange={handleInput} className='inputBox' />
-            {errors.email && <span className='error-Label'> {errors.email}</span>}
+            <label htmlFor='otherUserEmail' className='inputLabel'><strong>Collaborator's Email</strong></label>
+            <input type='otherUserEmail' placeholder='Email' name='otherUserEmail' value={values.otherUserEmail} onChange={handleInput} className='inputBox' readOnly/>
+            {errors.otherUserEmail && <span className='error-Label'> {errors.otherUserEmail}</span>}
           </div>
           
           <div className='formGroup'>
             <label htmlFor='rating' className='inputLabel'><strong>Rating</strong></label>
-            <RatingReview rating={values.rating} setValues={setValues} />
+            <RatingReview rating={values.rating} setValues={setValues} readOnly={isSubmitted}/>
             {errors.rating && <span className='error-Label'> {errors.rating}</span>}
           </div>
           <div className='formGroup'>
@@ -104,11 +116,16 @@ function Signup() {
               onChange={handleInput}
               className='inputBox'
               rows="4" 
+              readOnly={isSubmitted}
             />
             {errors.comment && <span className='error-Label'> {errors.comment}</span>}
           </div>
           <div className="submitButton">
-            <button className="register-button">Submit</button>
+            <button className="register-button" onClick={() => navigate("/", { replace: true })}>Return to Home Page</button>
+            {isSubmitted ? 
+              null
+              : 
+              <button className="register-button" >Submit</button>}
           </div>
 
         </form>

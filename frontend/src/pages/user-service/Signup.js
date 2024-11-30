@@ -5,6 +5,7 @@ import Validation from "./utils/SignupValidation"
 import axios from "axios";
 import "./styles/Signup.css";
 import NavBar from "../../components/NavBar";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 function Signup() {
   const [values, setValues] = useState({
@@ -36,7 +37,7 @@ function Signup() {
       validationErrors.email === "" &&
       validationErrors.password === "" &&
       validationErrors.confirmPassword === "") {
-      axios.post("http://localhost:5001/user/signup", values)
+      axios.post(`${API_GATEWAY_URL_API}/user/signup`, values)
         .then(res => {
           navigate('/user/login');
           setValues({
@@ -49,6 +50,9 @@ function Signup() {
           if (err.response && err.response.data.message) {
             setErrors(preErrors => ({ ...preErrors, email: err.response.data.message }));
           } else {
+            if (err.response && err.response.status === 429) {
+              alert("You have exceeded the rate limit. Please wait a moment and try again.");
+            }
             console.log(err);
           }
         });
@@ -57,7 +61,7 @@ function Signup() {
 
 
   return (
-    <div >
+    <div id="signUpFormContainer" className="container">
       <NavBar />
       <div id="signupFormContainer">
         <h1>Sign-up</h1>
@@ -82,8 +86,8 @@ function Signup() {
             <input type='password' placeholder='Confirm Password' name='confirmPassword' value={values.confirmPassword} onChange={handleInput} className='inputBox' />
             {errors.confirmPassword && <span className='errorLabel'> {errors.confirmPassword}</span>}
           </div>
-          <div class="registerButton">
-            <button class="register-button">Register</button>
+          <div className="registerButton">
+            <button className="register-button">Register</button>
           </div>
 
         </form>

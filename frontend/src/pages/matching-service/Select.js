@@ -1,12 +1,20 @@
 // Author(s): Andrew
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { matchingSocket } from "../../config/socket";
+import { apiGatewaySocket } from "../../config/socket";
 import "./styles/Select.css";
 import NavBar from "../../components/NavBar";
+import useSessionStorage from "../../hook/useSessionStorage";
 
 function Select() {
   const navigate = useNavigate();
+  
+  const email = useSessionStorage("", "email")[0];
+  // const token = useSessionStorage("", "token")[0];
+  // const username = useSessionStorage("", "username")[0];
+  const token = sessionStorage.getItem("token");
+  const username = sessionStorage.getItem("username");
+  
 
   const [errorMessage, setErrorMessage] = useState({
     topic: '',
@@ -61,51 +69,53 @@ function Select() {
     if (Object.keys(newErrorMessage).length === 0) {
       const updatedFormData = {
         ...formData,
-        email: sessionStorage.getItem("email"),
-        token: sessionStorage.getItem("token"),
-        username: sessionStorage.getItem("username"),
+        email: email,
+        token: email,
+        username: email,
       };
 
       // Emit a message to the server when submitting
-      matchingSocket.emit("join_matching_queue", updatedFormData);
+      apiGatewaySocket.emit("join_matching_queue", updatedFormData);
 
       navigate(`/matching/findingmatch`, { state: updatedFormData });
     }
   };
 
   return (
-    <div id="SelectFormContainer">
+    <div id="selectPageContainer" className="container">
       <NavBar />
-      <h1>Selection</h1>
-      <form onSubmit={handleSubmit}>
-        <div className='formGroup'>
-          <label htmlFor='topic'><strong>Topic</strong></label>
-          <select name='topic' value={formData.topic} onChange={handleInput} className="dropdown">
-            <option value="">Select Topic</option>
-            {topicOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          {errorMessage.topic && <span className='errorLabel'>{errorMessage.topic}</span>}
-        </div>
+      <div id="SelectFormContainer">
+        <h1>Selection</h1>
+        <form onSubmit={handleSubmit}>
+          <div className='formGroup'>
+            <label htmlFor='topic'><strong>Topic</strong></label>
+            <select name='topic' value={formData.topic} onChange={handleInput} className="dropdown">
+              <option value="">Select Topic</option>
+              {topicOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {errorMessage.topic && <span className='errorLabel'>{errorMessage.topic}</span>}
+          </div>
 
-        <div className='formGroup'>
-          <label htmlFor='difficultyLevel'><strong>Difficulty Level</strong></label>
-          <select name="difficultyLevel" value={formData.difficultyLevel} onChange={handleInput} className="dropdown">
-            <option value="">Select Difficulty Level</option>
-            {difficultyLevelOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          {errorMessage.difficultyLevel && <span className='errorLabel'>{errorMessage.difficultyLevel}</span>}
-        </div>
+          <div className='formGroup'>
+            <label htmlFor='difficultyLevel'><strong>Difficulty Level</strong></label>
+            <select name="difficultyLevel" value={formData.difficultyLevel} onChange={handleInput} className="dropdown">
+              <option value="">Select Difficulty Level</option>
+              {difficultyLevelOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {errorMessage.difficultyLevel && <span className='errorLabel'>{errorMessage.difficultyLevel}</span>}
+          </div>
 
-        <button type="submit">Find match</button>
-      </form>
+          <button type="submit">Find match</button>
+        </form>
+      </div>
     </div>
   );
 }

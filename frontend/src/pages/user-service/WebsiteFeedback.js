@@ -1,12 +1,13 @@
 // Author(s): Andrew
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./styles/WebsiteFeedback.css";
 import NavBar from "../../components/NavBar";
+import { API_GATEWAY_URL_API } from "../../config/constant";
 
 function WebsiteFeedback() {
   const [values, setValues] = useState({
+    email: sessionStorage.getItem("email"),
     comment: ''
   });
 
@@ -39,25 +40,27 @@ function WebsiteFeedback() {
       return;
     }
 
-    
-    axios.post("http://localhost:5001/user/feedback/addwebsitefeedback", {feedbackContent: values})
+    axios.post(`${API_GATEWAY_URL_API}/user/addwebsitefeedback`, { feedbackContent: values })
     .then(res => {
-        setValues({
-        comment: ''
-        });
-        setSuccessMessage("Feedback submitted successfully!");
-    
+      setValues(prevValues => ({
+        ...prevValues,
+        comment: ''  // Reset only the comment field, keeping email intact
+      }));
+      setSuccessMessage("Feedback submitted successfully!");
     })
     .catch(err => {
+      if (err.response && err.response.status === 429) {
+        alert("You have exceeded the rate limit. Please wait a moment and try again.");
+      } else {
         console.log(err);
-        setErrorMessage("An error occurred. Please try again.");
+        setErrorMessage("An error occurred. Please try again.");  
+      }
     });
-    
-  };
+};
 
 
   return (
-    <div>
+    <div id="websiteFeedbackPage" className="container">
         <NavBar />
         <div id="WebsiteFeedbackFormContainer">
             <h1>Website Feedback</h1>

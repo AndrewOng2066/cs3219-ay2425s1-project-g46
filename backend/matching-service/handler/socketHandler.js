@@ -4,91 +4,78 @@ const {
   checkMatchingSameQueue,
   checkMatchingAnyQueue,
   removeUserFromQueue,
-  removeUserFromPriorityQueue
-} = require('../controller/queueController');
+  removeUserFromPriorityQueue,
+} = require("../controller/queueController");
 const { createMatch } = require("../controller/matchController");
 
-let socketMap = {};
+const handleSocketIO = (apiGatewaySocket) => {
+  apiGatewaySocket.on("connect", () => {
+    console.log("Connected to API Gateway with socket ID:", apiGatewaySocket.id);
 
-const handleSocketIO = (io) => {
-  io.on("connection", (socket) => {
-    console.log(`A user connected with socket ID: ${socket.id}`);
+    // Example of emitting an event to the API Gateway
+    apiGatewaySocket.emit("matchingService");
+  });
 
-    // Listen for the join_matching_queue event from the client
-    socket.on("join_matching_queue", async (data) => {
-      console.log(`New request for matching:`, data);
-      const { topic, difficultyLevel, email, token, username, isAny } = data;
+  // Notify matched users
+  const notifyUsers = (firstUser, secondUser, matchData, id) => {
+    apiGatewaySocket.emit("match_found", {
+      user1: firstUser.email,
+      user2: secondUser.email,
+      matchData,
+      id,
+    });
+    console.log(
+      `Match found --> User1: ${firstUser.email}, User2: ${secondUser.email}`
+    );
+  };
 
-      // Store the socket ID for the user
-      socketMap[email] = socket.id;
-
-      // Add user to RabbitMQ queue (assuming you have the logic for this)
+  // Handle the matching logic based on the queue type
+  const handleMatching = async (topic, difficultyLevel, email, token, username, isAny) => {
+    try {
+      // Add user to queue
       await addUserToQueue(topic, difficultyLevel, email, token, username, isAny);
 
-      // Check for a match
-      if (!isAny) {
-        const userList = await checkMatchingSameQueue(topic, difficultyLevel, email, token, username, isAny);
+      const userList = isAny
+        ? await checkMatchingAnyQueue(topic, difficultyLevel, email, token, username, isAny)
+        : await checkMatchingSameQueue(topic, difficultyLevel, email, token, username, isAny);
 
-        if (userList) {
-          const [firstUser, secondUser] = userList;
+      if (userList && userList.length === 2) {
+        const [firstUser, secondUser] = userList;
+        const { status, msg, error, matchData, id } = await createMatch(firstUser, secondUser);
 
-
-          const { status, msg, error, matchData, id } = await createMatch(firstUser, secondUser);
-
-          if (status == 200 && msg) {
-            console.log(msg);
-          } else if (status == 500 && error) {
-            console.error(error);
-          }
-
-          // Notify both users about the match
-          io.to(socketMap[firstUser.email]).emit("match_found", { data: matchData, id });
-          io.to(socketMap[secondUser.email]).emit("match_found", { data: matchData, id });
-          console.log(`A match is found: --> User1: ${firstUser.email}  --> User2: ${secondUser.email}`);
+        if (status === 200) {
+          console.log(msg);
+          notifyUsers(firstUser, secondUser, matchData, id);
+        } else {
+          console.error(error || "Unknown error during match creation.");
         }
-
-      } else {
-        const mixUserList = await checkMatchingAnyQueue(topic, difficultyLevel, email, token, username, isAny);
-
-        if (mixUserList) {
-          const [firstMixUser, secondMixUser] = mixUserList;
-
-
-          const { status, msg, error, matchData, id } = await createMatch(firstMixUser, secondMixUser);
-
-          if (status == 200 && msg) {
-            console.log(msg);
-          } else if (status == 500 && error) {
-            console.error(error);
-          }
-
-          // Notify both users about the match
-          io.to(socketMap[firstMixUser.email]).emit("match_found", { data: matchData, id });
-          io.to(socketMap[secondMixUser.email]).emit("match_found", { data: matchData, id });
-          console.log(`A match is found: --> User1: ${firstMixUser.email}  --> User2: ${secondMixUser.email}`);
-        }
-
       }
-    });
+    } catch (error) {
+      console.error("Error in handleMatching:", error);
+    }
+  };
 
-    // Listen for cancel_matching event from client
-    socket.on("cancel_matching", async (data) => {
-      console.log(`Cancelling matching for user:`, data.email);
-      const { topic, difficultyLevel, email, token, username, isAny } = data;
+  // Handle join matching queue event
+  apiGatewaySocket.on("join_matching_queue", async (data) => {
+    console.log(`New request for matching:`, data);
+    const { topic, difficultyLevel, email, token, username, isAny } = data;
+    await handleMatching(topic, difficultyLevel, email, token, username, isAny);
+  });
 
-      // Store the socket ID for the user
-      socketMap[email] = socket.id;
+  // Handle cancel matching event
+  apiGatewaySocket.on("cancel_matching", async (data) => {
+    console.log(`Cancelling matching for user: ${data.email}`);
+    const { topic, difficultyLevel, email, token, username, isAny } = data;
 
-      // Remove user from RabbitMQ queue (assuming you have the logic for this)
+    try {
+      // Remove user from RabbitMQ queue
       await removeUserFromQueue(topic, difficultyLevel, email, token, username, isAny);
       await removeUserFromPriorityQueue(topic, difficultyLevel, email, token, username, isAny);
 
-    })
-
-    // Handle disconnection
-    socket.on("disconnect", () => {
-      console.log(`User with socket ID ${socket.id} disconnected`);
-    });
+      console.log(`User ${email} removed from the queue.`);
+    } catch (error) {
+      console.error("Error in cancel_matching:", error);
+    }
   });
 };
 

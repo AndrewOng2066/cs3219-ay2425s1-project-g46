@@ -3,8 +3,8 @@ nav {
   display: flex;
   margin-right: 40px;
   margin-left: 40px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
   height: 10%;
 }
 

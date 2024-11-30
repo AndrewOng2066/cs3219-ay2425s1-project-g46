@@ -4,6 +4,7 @@ import { Button } from "primereact/button";
 import Avatar from 'react-avatar-edit';
 import './styles/AvatarImage.css';
 import axios from 'axios';
+import { API_GATEWAY_URL_API } from '../config/constant';
 
 export default function AvatarImage({ avatarUrl, email }) {
     const [dialogs, setDialogs] = useState(false);
@@ -32,7 +33,7 @@ export default function AvatarImage({ avatarUrl, email }) {
             setUploading(true);
             try {
                 // Send the base64 image to Firestore via your backend
-                await axios.post('http://localhost:5001/user/profile/updateavatar', {
+                await axios.post(`${API_GATEWAY_URL_API}/user/profile/updateavatar`, {
                     email: email, 
                     image: imgCrop
                 });

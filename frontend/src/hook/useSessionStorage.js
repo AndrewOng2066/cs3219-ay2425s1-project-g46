@@ -29,9 +29,14 @@ const useSessionStorage = (initial_value, id) => {
   useEffect(() => {
     const state_str = JSON.stringify(state); // Stringified state
     setItem(id, state_str); // Set stringified state as item in sessionStorage
-  }, [state]);
+  }, [state, id]);
 
-  return [state, setState];
+  const removeState = () => {
+    removeItem(id);
+    setState(initial_value); // Optionally reset the state to the initial value
+  };
+
+  return [state, setState, removeState];
 };
 
 export default useSessionStorage;
